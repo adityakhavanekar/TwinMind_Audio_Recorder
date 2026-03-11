@@ -13,7 +13,7 @@ struct TwinMind_Audio_RecorderApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RecordingView()
         }
     }
 }
