@@ -42,6 +42,7 @@ actor AudioRecordingActor {
     var transcriptionActor: TranscriptionActor?
     var audioQuality: AudioQuality = .medium
     var currentAudioLevel: Float = 0.0
+    var segmentsTranscribed = 0
     
     var segmentIndex = 0
     var segmentStartTime: Double = 0
@@ -98,6 +99,18 @@ actor AudioRecordingActor {
             print("Interruption began")
             engine.pause()
             
+            // Update Live Activity
+            if let startTime = recordingStartTime {
+                let elapsed = Date().timeIntervalSince(startTime)
+                LiveActivityManager.shared.updateActivity(
+                    recordingState: "Interrupted",
+                    elapsedTime: elapsed,
+                    segmentsTranscribed: segmentsTranscribed,
+                    totalSegments: segmentIndex,
+                    audioLevel: 0
+                )
+            }
+            
         case .ended:
             print("Interruption ended")
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
@@ -106,6 +119,18 @@ actor AudioRecordingActor {
             if options.contains(.shouldResume) {
                 try? engine.start()
                 print("Recording resumed after interruption")
+                
+                // Update Live Activity
+                if let startTime = recordingStartTime {
+                    let elapsed = Date().timeIntervalSince(startTime)
+                    LiveActivityManager.shared.updateActivity(
+                        recordingState: "Recording",
+                        elapsedTime: elapsed,
+                        segmentsTranscribed: segmentsTranscribed,
+                        totalSegments: segmentIndex,
+                        audioLevel: currentAudioLevel
+                    )
+                }
             }
             
         @unknown default:
@@ -162,6 +187,7 @@ actor AudioRecordingActor {
         currentSession = await dataManager?.createSession(name: "Recording \(Date())")
         segmentIndex = 0
         segmentStartTime = 0
+        segmentsTranscribed = 0
         recordingStartTime = Date()
         
         let inputNode = engine.inputNode
@@ -184,6 +210,9 @@ actor AudioRecordingActor {
         try? engine.start()
         isRecording = true
         
+        // Start Live Activity
+        LiveActivityManager.shared.startActivity(sessionName: "Recording \(Date())")
+        
         segmentTimer = Task {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(30))
@@ -204,6 +233,9 @@ actor AudioRecordingActor {
         engine.stop()
         isRecording = false
         currentAudioLevel = 0.0
+        
+        // Stop Live Activity
+        LiveActivityManager.shared.stopActivity()
         
         if let session = currentSession, let startTime = recordingStartTime {
             let duration = Date().timeIntervalSince(startTime)
@@ -248,7 +280,20 @@ actor AudioRecordingActor {
                 session: session
             ) {
                 await transcriptionActor?.transcribe(filePath: filePath, segment: segment)
+                segmentsTranscribed += 1
             }
+        }
+        
+        // Update Live Activity
+        if let startTime = recordingStartTime {
+            let elapsed = Date().timeIntervalSince(startTime)
+            LiveActivityManager.shared.updateActivity(
+                recordingState: "Recording",
+                elapsedTime: elapsed,
+                segmentsTranscribed: segmentsTranscribed,
+                totalSegments: segmentIndex + 1,
+                audioLevel: currentAudioLevel
+            )
         }
         
         segmentStartTime += 30

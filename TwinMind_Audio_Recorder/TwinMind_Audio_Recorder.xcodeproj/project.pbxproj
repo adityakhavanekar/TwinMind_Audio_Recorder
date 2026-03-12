@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0A76A1E62F63782000668C9B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A76A1E52F63782000668C9B /* WidgetKit.framework */; };
+		0A76A1E82F63782000668C9B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A76A1E72F63782000668C9B /* SwiftUI.framework */; };
+		0A76A1F92F63782200668C9B /* RecorderWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0A76A1E32F63782000668C9B /* RecorderWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0A76A1A42F61AD5E00668C9B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,17 +27,61 @@
 			remoteGlobalIDString = 0A76A1902F61AD5B00668C9B;
 			remoteInfo = TwinMind_Audio_Recorder;
 		};
+		0A76A1F72F63782200668C9B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A76A1892F61AD5B00668C9B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A76A1E22F63782000668C9B;
+			remoteInfo = RecorderWidgetExtensionExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0A76A1FE2F63782200668C9B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0A76A1F92F63782200668C9B /* RecorderWidgetExtensionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0A76A1912F61AD5C00668C9B /* TwinMind_Audio_Recorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TwinMind_Audio_Recorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A76A1A32F61AD5E00668C9B /* TwinMind_Audio_RecorderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinMind_Audio_RecorderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A76A1AD2F61AD5E00668C9B /* TwinMind_Audio_RecorderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinMind_Audio_RecorderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A76A1E32F63782000668C9B /* RecorderWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RecorderWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A76A1E52F63782000668C9B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		0A76A1E72F63782000668C9B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0A76A1FA2F63782200668C9B /* Exceptions for "RecorderWidgetExtension" folder in "RecorderWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0A76A1E22F63782000668C9B /* RecorderWidgetExtensionExtension */;
+		};
+		0A76A2032F6378E600668C9B /* Exceptions for "TwinMind_Audio_Recorder" folder in "RecorderWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Utilities/RecordingAttributes.swift,
+			);
+			target = 0A76A1E22F63782000668C9B /* RecorderWidgetExtensionExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0A76A1932F61AD5C00668C9B /* TwinMind_Audio_Recorder */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0A76A2032F6378E600668C9B /* Exceptions for "TwinMind_Audio_Recorder" folder in "RecorderWidgetExtensionExtension" target */,
+			);
 			path = TwinMind_Audio_Recorder;
 			sourceTree = "<group>";
 		};
@@ -43,6 +93,14 @@
 		0A76A1B02F61AD5E00668C9B /* TwinMind_Audio_RecorderUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TwinMind_Audio_RecorderUITests;
+			sourceTree = "<group>";
+		};
+		0A76A1E92F63782000668C9B /* RecorderWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0A76A1FA2F63782200668C9B /* Exceptions for "RecorderWidgetExtension" folder in "RecorderWidgetExtensionExtension" target */,
+			);
+			path = RecorderWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +127,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0A76A1E02F63782000668C9B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A76A1E82F63782000668C9B /* SwiftUI.framework in Frameworks */,
+				0A76A1E62F63782000668C9B /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +145,8 @@
 				0A76A1932F61AD5C00668C9B /* TwinMind_Audio_Recorder */,
 				0A76A1A62F61AD5E00668C9B /* TwinMind_Audio_RecorderTests */,
 				0A76A1B02F61AD5E00668C9B /* TwinMind_Audio_RecorderUITests */,
+				0A76A1E92F63782000668C9B /* RecorderWidgetExtension */,
+				0A76A1E42F63782000668C9B /* Frameworks */,
 				0A76A1922F61AD5C00668C9B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +157,18 @@
 				0A76A1912F61AD5C00668C9B /* TwinMind_Audio_Recorder.app */,
 				0A76A1A32F61AD5E00668C9B /* TwinMind_Audio_RecorderTests.xctest */,
 				0A76A1AD2F61AD5E00668C9B /* TwinMind_Audio_RecorderUITests.xctest */,
+				0A76A1E32F63782000668C9B /* RecorderWidgetExtensionExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0A76A1E42F63782000668C9B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0A76A1E52F63782000668C9B /* WidgetKit.framework */,
+				0A76A1E72F63782000668C9B /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,10 +181,12 @@
 				0A76A18D2F61AD5B00668C9B /* Sources */,
 				0A76A18E2F61AD5B00668C9B /* Frameworks */,
 				0A76A18F2F61AD5B00668C9B /* Resources */,
+				0A76A1FE2F63782200668C9B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0A76A1F82F63782200668C9B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0A76A1932F61AD5C00668C9B /* TwinMind_Audio_Recorder */,
@@ -163,6 +244,28 @@
 			productReference = 0A76A1AD2F61AD5E00668C9B /* TwinMind_Audio_RecorderUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		0A76A1E22F63782000668C9B /* RecorderWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A76A1FB2F63782200668C9B /* Build configuration list for PBXNativeTarget "RecorderWidgetExtensionExtension" */;
+			buildPhases = (
+				0A76A1DF2F63782000668C9B /* Sources */,
+				0A76A1E02F63782000668C9B /* Frameworks */,
+				0A76A1E12F63782000668C9B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0A76A1E92F63782000668C9B /* RecorderWidgetExtension */,
+			);
+			name = RecorderWidgetExtensionExtension;
+			packageProductDependencies = (
+			);
+			productName = RecorderWidgetExtensionExtension;
+			productReference = 0A76A1E32F63782000668C9B /* RecorderWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +287,9 @@
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 0A76A1902F61AD5B00668C9B;
 					};
+					0A76A1E22F63782000668C9B = {
+						CreatedOnToolsVersion = 26.2;
+					};
 				};
 			};
 			buildConfigurationList = 0A76A18C2F61AD5B00668C9B /* Build configuration list for PBXProject "TwinMind_Audio_Recorder" */;
@@ -203,6 +309,7 @@
 				0A76A1902F61AD5B00668C9B /* TwinMind_Audio_Recorder */,
 				0A76A1A22F61AD5E00668C9B /* TwinMind_Audio_RecorderTests */,
 				0A76A1AC2F61AD5E00668C9B /* TwinMind_Audio_RecorderUITests */,
+				0A76A1E22F63782000668C9B /* RecorderWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +330,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		0A76A1AB2F61AD5E00668C9B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A76A1E12F63782000668C9B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +367,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0A76A1DF2F63782000668C9B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +386,11 @@
 			isa = PBXTargetDependency;
 			target = 0A76A1902F61AD5B00668C9B /* TwinMind_Audio_Recorder */;
 			targetProxy = 0A76A1AE2F61AD5E00668C9B /* PBXContainerItemProxy */;
+		};
+		0A76A1F82F63782200668C9B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A76A1E22F63782000668C9B /* RecorderWidgetExtensionExtension */;
+			targetProxy = 0A76A1F72F63782200668C9B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -401,7 +527,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TwinMind-Audio-Recorder-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Twin Mind Audio Recorder";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone access to save and record audio";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -436,7 +564,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TwinMind-Audio-Recorder-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Twin Mind Audio Recorder";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone access to save and record audio";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -544,6 +674,66 @@
 			};
 			name = Release;
 		};
+		0A76A1FC2F63782200668C9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P35TG23C96;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RecorderWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RecorderWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AKApps.TwinMind-Audio-Recorder.RecorderWidgetExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0A76A1FD2F63782200668C9B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P35TG23C96;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RecorderWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RecorderWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AKApps.TwinMind-Audio-Recorder.RecorderWidgetExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -579,6 +769,15 @@
 			buildConfigurations = (
 				0A76A1BE2F61AD5E00668C9B /* Debug */,
 				0A76A1BF2F61AD5E00668C9B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A76A1FB2F63782200668C9B /* Build configuration list for PBXNativeTarget "RecorderWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A76A1FC2F63782200668C9B /* Debug */,
+				0A76A1FD2F63782200668C9B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

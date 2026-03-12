@@ -10,77 +10,50 @@ import SwiftData
 
 struct RecordingView: View {
     
-    @State var isRecording: Bool = false
-    @State private var progress = 0.5
-    @State var dataManager: DataManagerActor?
+    @State var coordinator = RecordingCoordinator.shared
     @State var audioLevel: Float = 0.0
     @State var levelTimer: Timer?
-    @State var transcriber: TranscriptionActor?
 
     @Environment(\.modelContext) private var context
-    
-    let recorder = AudioRecordingActor()
     
     var body: some View {
         
         VStack {
-            if isRecording {
+            if coordinator.isRecording {
                 Text("Audio Level: \(audioLevel, specifier: "%.4f")")
                     .font(.caption)
             }
             
-            ProgressView(value: progress)
-                .padding()
-            
             Button {
                 Task {
-                    if await recorder.isRecording == false {
-                        await recorder.start()
-                        isRecording = true
-                        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+                    if !coordinator.isRecording {
+                        await coordinator.startRecording()
+                        levelTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
                             Task {
-                                audioLevel = await recorder.getAudioLevel()
+                                audioLevel = await coordinator.recorder.getAudioLevel()
                             }
                         }
                     } else {
-                        await recorder.stop()
-                        isRecording = false
+                        _ = await coordinator.stopRecording()
                         levelTimer?.invalidate()
                         levelTimer = nil
                         audioLevel = 0.0
                     }
                 }
             } label: {
-                Image(systemName: isRecording ? "stop.fill" : "play.fill")
+                Image(systemName: coordinator.isRecording ? "stop.fill" : "play.fill")
                     .resizable()
                     .frame(width: 25, height: 25)
             }
             
             Button("Play") {
                 Task {
-                    await recorder.play()
+                    await coordinator.recorder.play()
                 }
             }
         }
         .onAppear {
-            let container = context.container
-            let manager = DataManagerActor(container: container)
-            let newTranscriber = TranscriptionActor()
-            dataManager = manager
-            transcriber = newTranscriber
-            
-            NetworkMonitor.shared.start()
-            NetworkMonitor.shared.onStatusChange = { online in
-                Task {
-                    await newTranscriber.setOnlineStatus(online)
-                }
-            }
-            
-            Task {
-                await recorder.setDataManager(manager)
-                await newTranscriber.setDataManager(manager)
-                await recorder.setTranscriptionActor(newTranscriber)
-            }
+            coordinator.setup(container: context.container)
         }
     }
 }
