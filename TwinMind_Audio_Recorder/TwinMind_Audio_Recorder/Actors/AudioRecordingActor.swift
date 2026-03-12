@@ -42,8 +42,93 @@ actor AudioRecordingActor {
         try? session.setActive(true)
     }
     
+    func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            Task { await self?.handleInterruption(notification) }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            Task { await self?.handleRouteChange(notification) }
+        }
+    }
+    
+    func handleInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
+        
+        switch type {
+        case .began:
+            print("Interruption began")
+            engine.pause()
+            
+        case .ended:
+            print("Interruption ended")
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            
+            if options.contains(.shouldResume) {
+                try? engine.start()
+                print("Recording resumed after interruption")
+            }
+            
+        @unknown default:
+            break
+        }
+    }
+    
+    func handleRouteChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else { return }
+        
+        switch reason {
+        case .oldDeviceUnavailable, .newDeviceAvailable:
+            print("Audio route changed: \(reason.rawValue)")
+            if isRecording {
+                rebuildTap()
+            }
+            
+        default:
+            break
+        }
+    }
+    
+    private func rebuildTap() {
+        engine.inputNode.removeTap(onBus: 0)
+        engine.stop()
+        
+        let inputNode = engine.inputNode
+        let hardwareFormat = inputNode.inputFormat(forBus: 0)
+        guard let commonFormat = AVAudioFormat(
+            commonFormat: .pcmFormatFloat32,
+            sampleRate: hardwareFormat.sampleRate,
+            channels: 1,
+            interleaved: false
+        ) else { return }
+        
+        stopCurrentSegment()
+        createNewAudioFile(format: commonFormat)
+        
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: commonFormat) { [weak self] buffer, time in
+            try? self?.audioFile?.write(from: buffer)
+        }
+        
+        try? engine.start()
+        print("Recording resumed with new route")
+    }
+    
     func start() async {
         configureAudioSession()
+        setupNotifications()
         
         currentSession = await dataManager?.createSession(name: "Recording \(Date())")
         segmentIndex = 0
@@ -51,11 +136,18 @@ actor AudioRecordingActor {
         recordingStartTime = Date()
         
         let inputNode = engine.inputNode
-        let format = inputNode.outputFormat(forBus: 0)
+        let hardwareFormat = inputNode.inputFormat(forBus: 0)
         
-        createNewAudioFile(format: format)
+        guard let commonFormat = AVAudioFormat(
+            commonFormat: .pcmFormatFloat32,
+            sampleRate: hardwareFormat.sampleRate,
+            channels: 1,
+            interleaved: false
+        ) else { return }
         
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, time in
+        createNewAudioFile(format: commonFormat)
+        
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: commonFormat) { [weak self] buffer, time in
             try? self?.audioFile?.write(from: buffer)
         }
         
@@ -67,7 +159,7 @@ actor AudioRecordingActor {
                 try? await Task.sleep(for: .seconds(30))
                 if isRecording {
                     stopCurrentSegment()
-                    createNewAudioFile(format: format)
+                    createNewAudioFile(format: commonFormat)
                 }
             }
         }
