@@ -6,11 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct RecordingView: View {
     
     @State var isRecording: Bool = false
     @State private var progress = 0.5
+    @State var dataManager: DataManagerActor?
+
+    @Environment(\.modelContext) private var context
+    
     let recorder = AudioRecordingActor()
     
     var body: some View {
@@ -39,6 +44,13 @@ struct RecordingView: View {
                 Task {
                     await recorder.play()
                 }
+            }
+        }.onAppear {
+            let container = context.container
+            let manager = DataManagerActor(container: container)
+            dataManager = manager
+            Task {
+                await recorder.setDataManager(manager)
             }
         }
     }

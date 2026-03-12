@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import SwiftData
+import Foundation
 
 @Model
 class RecordingSession {
