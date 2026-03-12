@@ -29,22 +29,9 @@
 		0A76A1AD2F61AD5E00668C9B /* TwinMind_Audio_RecorderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinMind_Audio_RecorderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0A76A1D52F63573E00668C9B /* Exceptions for "TwinMind_Audio_Recorder" folder in "TwinMind_Audio_Recorder" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"TwinMind-Audio-Recorder-Info.plist",
-			);
-			target = 0A76A1902F61AD5B00668C9B /* TwinMind_Audio_Recorder */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0A76A1932F61AD5C00668C9B /* TwinMind_Audio_Recorder */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0A76A1D52F63573E00668C9B /* Exceptions for "TwinMind_Audio_Recorder" folder in "TwinMind_Audio_Recorder" target */,
-			);
 			path = TwinMind_Audio_Recorder;
 			sourceTree = "<group>";
 		};

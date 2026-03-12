@@ -12,16 +12,26 @@ import Speech
 actor TranscriptionActor {
     var dataManager: DataManagerActor?
     var consecutiveFailures = 0
+    var offlineQueue: [(String, AudioSegment)] = []
+    var isOnline = true
     
     func setDataManager(_ manager: DataManagerActor) {
         self.dataManager = manager
     }
     
+    func setOnlineStatus(_ online: Bool) async {
+        isOnline = online
+        if online {
+            await processOfflineQueue()
+        }
+    }
+    
     func transcribe(filePath: String, segment: AudioSegment) async {
         let url = getDocumentsDirectory().appendingPathComponent(filePath)
         
-        if isAudioSilent(fileURL: url) {
-            print("Segment is silent, skipping transcription")
+        if !isOnline {
+            offlineQueue.append((filePath, segment))
+            print("Offline — queued segment for later. Queue size: \(offlineQueue.count)")
             return
         }
         
@@ -29,6 +39,18 @@ actor TranscriptionActor {
             await transcribeWithAPI(fileURL: url, segment: segment)
         } else {
             await transcribeLocally(fileURL: url, segment: segment)
+        }
+    }
+    
+    private func processOfflineQueue() async {
+        guard !offlineQueue.isEmpty else { return }
+        
+        let queue = offlineQueue
+        offlineQueue = []
+        print("Processing \(queue.count) queued segments")
+        
+        for (filePath, segment) in queue {
+            await transcribe(filePath: filePath, segment: segment)
         }
     }
     
@@ -122,26 +144,6 @@ actor TranscriptionActor {
     
     private func getDocumentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    }
-    
-    private func isAudioSilent(fileURL: URL) -> Bool {
-        guard let audioFile = try? AVAudioFile(forReading: fileURL) else { return true }
-        
-        let format = audioFile.processingFormat
-        let frameCount = UInt32(audioFile.length)
-        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else { return true }
-        
-        try? audioFile.read(into: buffer)
-        
-        guard let channelData = buffer.floatChannelData?[0] else { return true }
-        
-        var sum: Float = 0
-        for i in 0..<Int(buffer.frameLength) {
-            sum += abs(channelData[i])
-        }
-        
-        let average = sum / Float(buffer.frameLength)
-        return average < 0.01  // below this = basically silence
     }
 }
 

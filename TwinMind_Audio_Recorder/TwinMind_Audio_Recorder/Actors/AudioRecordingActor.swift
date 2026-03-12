@@ -10,6 +10,28 @@ import SwiftUI
 import UIKit
 import AVFoundation
 
+enum AudioQuality {
+    case low
+    case medium
+    case high
+    
+    var bitDepth: Int {
+        switch self {
+        case .low: return 16
+        case .medium: return 16
+        case .high: return 24
+        }
+    }
+    
+    var format: AVAudioCommonFormat {
+        switch self {
+        case .low: return .pcmFormatInt16
+        case .medium: return .pcmFormatFloat32
+        case .high: return .pcmFormatFloat32
+        }
+    }
+}
+
 actor AudioRecordingActor {
     var isRecording = false
     let engine = AVAudioEngine()
@@ -18,6 +40,8 @@ actor AudioRecordingActor {
     var dataManager: DataManagerActor?
     var currentSession: RecordingSession?
     var transcriptionActor: TranscriptionActor?
+    var audioQuality: AudioQuality = .medium
+    var currentAudioLevel: Float = 0.0
     
     var segmentIndex = 0
     var segmentStartTime: Double = 0
@@ -30,6 +54,10 @@ actor AudioRecordingActor {
     
     func setTranscriptionActor(_ actor: TranscriptionActor) {
         self.transcriptionActor = actor
+    }
+    
+    func setAudioQuality(_ quality: AudioQuality) {
+        self.audioQuality = quality
     }
     
     func configureAudioSession() {
@@ -106,10 +134,10 @@ actor AudioRecordingActor {
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
         
-        let inputNode = engine.inputNode
-        let hardwareFormat = inputNode.inputFormat(forBus: 0)
+        let hardwareFormat = engine.inputNode.inputFormat(forBus: 0)
+        
         guard let commonFormat = AVAudioFormat(
-            commonFormat: .pcmFormatFloat32,
+            commonFormat: audioQuality.format,
             sampleRate: hardwareFormat.sampleRate,
             channels: 1,
             interleaved: false
@@ -118,8 +146,9 @@ actor AudioRecordingActor {
         stopCurrentSegment()
         createNewAudioFile(format: commonFormat)
         
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: commonFormat) { [weak self] buffer, time in
+        engine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: commonFormat) { [weak self] buffer, time in
             try? self?.audioFile?.write(from: buffer)
+            self?.updateAudioLevel(buffer: buffer)
         }
         
         try? engine.start()
@@ -139,7 +168,7 @@ actor AudioRecordingActor {
         let hardwareFormat = inputNode.inputFormat(forBus: 0)
         
         guard let commonFormat = AVAudioFormat(
-            commonFormat: .pcmFormatFloat32,
+            commonFormat: audioQuality.format,
             sampleRate: hardwareFormat.sampleRate,
             channels: 1,
             interleaved: false
@@ -149,6 +178,7 @@ actor AudioRecordingActor {
         
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: commonFormat) { [weak self] buffer, time in
             try? self?.audioFile?.write(from: buffer)
+            self?.updateAudioLevel(buffer: buffer)
         }
         
         try? engine.start()
@@ -173,11 +203,28 @@ actor AudioRecordingActor {
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
         isRecording = false
+        currentAudioLevel = 0.0
         
         if let session = currentSession, let startTime = recordingStartTime {
             let duration = Date().timeIntervalSince(startTime)
             await dataManager?.updateSessionDuration(session, duration: duration)
         }
+    }
+    
+    private func updateAudioLevel(buffer: AVAudioPCMBuffer) {
+        guard let channelData = buffer.floatChannelData?[0] else { return }
+        let frames = Int(buffer.frameLength)
+        
+        var sum: Float = 0
+        for i in 0..<frames {
+            sum += abs(channelData[i])
+        }
+        
+        currentAudioLevel = sum / Float(frames)
+    }
+    
+    func getAudioLevel() -> Float {
+        return currentAudioLevel
     }
     
     private func createNewAudioFile(format: AVAudioFormat) {
