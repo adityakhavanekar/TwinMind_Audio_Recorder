@@ -48,9 +48,12 @@ struct RecordingView: View {
         }.onAppear {
             let container = context.container
             let manager = DataManagerActor(container: container)
+            let transcriber = TranscriptionActor()
             dataManager = manager
             Task {
                 await recorder.setDataManager(manager)
+                await transcriber.setDataManager(manager)
+                await recorder.setTranscriptionActor(transcriber)
             }
         }
     }

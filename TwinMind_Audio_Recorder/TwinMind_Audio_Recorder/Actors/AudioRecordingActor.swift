@@ -17,6 +17,7 @@ actor AudioRecordingActor {
     var player: AVAudioPlayer?
     var dataManager: DataManagerActor?
     var currentSession: RecordingSession?
+    var transcriptionActor: TranscriptionActor?
     
     var segmentIndex = 0
     var segmentStartTime: Double = 0
@@ -25,6 +26,10 @@ actor AudioRecordingActor {
     
     func setDataManager(_ manager: DataManagerActor) {
         self.dataManager = manager
+    }
+    
+    func setTranscriptionActor(_ actor: TranscriptionActor) {
+        self.transcriptionActor = actor
     }
     
     func configureAudioSession() {
@@ -40,26 +45,32 @@ actor AudioRecordingActor {
     func start() async {
         configureAudioSession()
         
-        // Create session in SwiftData
         currentSession = await dataManager?.createSession(name: "Recording \(Date())")
         segmentIndex = 0
         segmentStartTime = 0
         recordingStartTime = Date()
         
-        startNewSegment()
+        let inputNode = engine.inputNode
+        let format = inputNode.outputFormat(forBus: 0)
         
-        // Timer to create new segment every 30 seconds
+        createNewAudioFile(format: format)
+        
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, time in
+            try? self?.audioFile?.write(from: buffer)
+        }
+        
+        try? engine.start()
+        isRecording = true
+        
         segmentTimer = Task {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(30))
                 if isRecording {
                     stopCurrentSegment()
-                    startNewSegment()
+                    createNewAudioFile(format: format)
                 }
             }
         }
-        
-        isRecording = true
     }
     
     func stop() async {
@@ -69,36 +80,18 @@ actor AudioRecordingActor {
         
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
+        isRecording = false
         
-        // Update session duration
         if let session = currentSession, let startTime = recordingStartTime {
             let duration = Date().timeIntervalSince(startTime)
             await dataManager?.updateSessionDuration(session, duration: duration)
         }
-        
-        isRecording = false
     }
     
-    private func startNewSegment() {
-        let inputNode = engine.inputNode
-        let format = inputNode.outputFormat(forBus: 0)
-        
+    private func createNewAudioFile(format: AVAudioFormat) {
         let fileName = "segment_\(segmentIndex).wav"
         let url = getDocumentsDirectory().appendingPathComponent(fileName)
         audioFile = try? AVAudioFile(forWriting: url, settings: format.settings)
-        
-        let file = audioFile
-        
-        // Remove old tap before installing new one
-        inputNode.removeTap(onBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, time in
-            try? file?.write(from: buffer)
-        }
-        
-        if !engine.isRunning {
-            try? engine.start()
-        }
-        
         print("Started segment \(segmentIndex)")
     }
     
@@ -107,15 +100,16 @@ actor AudioRecordingActor {
         
         let filePath = "segment_\(segmentIndex).wav"
         
-        // Save segment to SwiftData
         Task {
-            _ = await dataManager?.createSegment(
+            if let segment = await dataManager?.createSegment(
                 filePath: filePath,
                 startTime: segmentStartTime,
                 duration: 30,
                 segmentIndex: segmentIndex,
                 session: session
-            )
+            ) {
+                await transcriptionActor?.transcribe(filePath: filePath, segment: segment)
+            }
         }
         
         segmentStartTime += 30
