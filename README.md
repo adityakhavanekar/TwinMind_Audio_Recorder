@@ -4,7 +4,7 @@ A production-ready iOS audio recording application that records audio, transcrib
 
 ## Note on Development
 
-This assignment had a 48-hour deadline which was quite tight given the breadth of requirements. To maximize productivity, I used **Claude Code** (Anthropic's AI coding assistant) as a development aid to help with boilerplate code generation, debugging, and learning SwiftUI patterns (this was my first SwiftUI project — my background is in UIKit). All architectural decisions, testing, and integration were done by me. The AI helped me move faster, not think less.
+This assignment had a 48-hour deadline which was quite tight given the breadth of requirements. To maximize productivity, I used **Claude Code** (Anthropic's AI coding assistant) as a development aid to help with boilerplate code generation, debugging, and learning SwiftUI patterns (my background is in UIKit). All architectural decisions, testing, and integration were done by me. The AI helped me move faster, not think less.
 
 ## Setup Instructions
 
