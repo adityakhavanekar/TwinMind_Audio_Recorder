@@ -6,9 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SessionDetailView: View {
     let session: RecordingSession
+    @Environment(\.modelContext) private var context
+    @State var refreshTimer: Timer?
+    @State var segments: [AudioSegment] = []
     
     var body: some View {
         List {
@@ -28,19 +32,17 @@ struct SessionDetailView: View {
                 HStack {
                     Text("Segments")
                     Spacer()
-                    Text("\(session.segments.count)")
+                    Text("\(segments.count)")
                         .foregroundColor(.secondary)
                 }
             }
             
             Section("Transcription") {
-                let sortedSegments = session.segments.sorted { $0.segmentIndex < $1.segmentIndex }
-                
-                if sortedSegments.isEmpty {
+                if segments.isEmpty {
                     Text("No segments yet")
                         .foregroundColor(.secondary)
                 } else {
-                    ForEach(sortedSegments, id: \.segmentIndex) { segment in
+                    ForEach(segments.sorted { $0.segmentIndex < $1.segmentIndex }, id: \.segmentIndex) { segment in
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Segment \(segment.segmentIndex + 1)")
                                 .font(.caption)
@@ -50,9 +52,13 @@ struct SessionDetailView: View {
                                 Text(transcription.text)
                                     .font(.body)
                             } else {
-                                Text("Transcribing...")
-                                    .foregroundColor(.secondary)
-                                    .italic()
+                                HStack {
+                                    ProgressView()
+                                        .scaleEffect(0.7)
+                                    Text("Transcribing...")
+                                        .foregroundColor(.secondary)
+                                        .italic()
+                                }
                             }
                         }
                         .padding(.vertical, 4)
@@ -61,6 +67,28 @@ struct SessionDetailView: View {
             }
         }
         .navigationTitle(session.name)
+        .onAppear {
+            loadSegments()
+            refreshTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                loadSegments()
+            }
+        }
+        .onDisappear {
+            refreshTimer?.invalidate()
+            refreshTimer = nil
+        }
+    }
+    
+    func loadSegments() {
+        do {
+            try context.save()
+            let sessionName = session.name
+            let descriptor = FetchDescriptor<AudioSegment>()
+            let allSegments = try context.fetch(descriptor)
+            segments = allSegments.filter { $0.session?.name == sessionName }
+        } catch {
+            print("Failed to fetch segments: \(error)")
+        }
     }
     
     func formatDuration(_ seconds: Double) -> String {

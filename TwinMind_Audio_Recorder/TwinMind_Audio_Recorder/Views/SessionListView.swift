@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct SessionListView: View {
-    @Query(sort: \RecordingSession.date, order: .reverse) var sessions: [RecordingSession]
+    @Query(filter: #Predicate<RecordingSession> { $0.isRecording == false }, sort: \RecordingSession.date, order: .reverse) var sessions: [RecordingSession]
     @Environment(\.modelContext) private var context
     
     var body: some View {
