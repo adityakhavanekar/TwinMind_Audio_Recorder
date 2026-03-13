@@ -10,24 +10,27 @@ import SwiftData
 
 struct RecordingView: View {
     
-    @State var coordinator = RecordingCoordinator.shared
+    @State var isRecording = false
     @State var audioLevel: Float = 0.0
     @State var levelTimer: Timer?
-
-    @Environment(\.modelContext) private var context
+    @State var coordinator = RecordingCoordinator.shared
     
     var body: some View {
-        
-        VStack {
-            if coordinator.isRecording {
-                Text("Audio Level: \(audioLevel, specifier: "%.4f")")
-                    .font(.caption)
-            }
+        VStack(spacing: 30) {
+            Spacer()
+            
+            Text(isRecording ? "Recording..." : "Tap to Record")
+                .font(.title2)
+            
+            Text("Audio Level: \(audioLevel, specifier: "%.4f")")
+                .font(.caption)
+                .opacity(isRecording ? 1 : 0)
             
             Button {
                 Task {
-                    if !coordinator.isRecording {
+                    if !isRecording {
                         await coordinator.startRecording()
+                        isRecording = true
                         levelTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
                             Task {
                                 audioLevel = await coordinator.recorder.getAudioLevel()
@@ -35,25 +38,20 @@ struct RecordingView: View {
                         }
                     } else {
                         _ = await coordinator.stopRecording()
+                        isRecording = false
                         levelTimer?.invalidate()
                         levelTimer = nil
                         audioLevel = 0.0
                     }
                 }
             } label: {
-                Image(systemName: coordinator.isRecording ? "stop.fill" : "play.fill")
+                Image(systemName: isRecording ? "stop.circle.fill" : "record.circle")
                     .resizable()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 80, height: 80)
+                    .foregroundColor(.red)
             }
             
-            Button("Play") {
-                Task {
-                    await coordinator.recorder.play()
-                }
-            }
-        }
-        .onAppear {
-            coordinator.setup(container: context.container)
+            Spacer()
         }
     }
 }

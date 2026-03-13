@@ -7,13 +7,14 @@
 
 import SwiftUI
 import CoreData
+import SwiftData
 
 @main
 struct TwinMind_Audio_RecorderApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RecordingView()
-        }
+            ContentView()
+        }.modelContainer(for: [RecordingSession.self, AudioSegment.self, Transcription.self])
     }
 }

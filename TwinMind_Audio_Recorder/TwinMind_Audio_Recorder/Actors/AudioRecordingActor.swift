@@ -32,6 +32,13 @@ enum AudioQuality {
     }
 }
 
+enum RecordingError: Error {
+    case microphonePermissionDenied
+    case engineStartFailed
+    case fileCreationFailed
+    case insufficientStorage
+}
+
 actor AudioRecordingActor {
     var isRecording = false
     let engine = AVAudioEngine()
@@ -181,6 +188,17 @@ actor AudioRecordingActor {
     }
     
     func start() async {
+        
+        guard await checkPermissions() else {
+            print("ERROR: Microphone permission not granted")
+            return
+        }
+            
+        guard checkStorage() else {
+            print("ERROR: Insufficient storage space")
+            return
+        }
+        
         configureAudioSession()
         setupNotifications()
         
@@ -310,5 +328,44 @@ actor AudioRecordingActor {
     
     func getDocumentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+    
+    func checkPermissions() async -> Bool {
+        let status = AVAudioApplication.shared.recordPermission
+        
+        switch status {
+        case .granted:
+            return true
+        case .denied:
+            print("Microphone permission denied")
+            return false
+        case .undetermined:
+            return await withCheckedContinuation { continuation in
+                AVAudioApplication.requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
+            }
+        @unknown default:
+            return false
+        }
+    }
+
+    func checkStorage() -> Bool {
+        let fileManager = FileManager.default
+        let documentDirectory = getDocumentsDirectory()
+        
+        do {
+            let values = try documentDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            if let available = values.volumeAvailableCapacityForImportantUsage {
+                let availableMB = available / (1024 * 1024)
+                if availableMB < 50 {
+                    print("Low storage: \(availableMB)MB remaining")
+                    return false
+                }
+            }
+        } catch {
+            print("Cannot check storage: \(error)")
+        }
+        return true
     }
 }
